@@ -1,0 +1,7 @@
+flask
+pandas
+numpy
+openpyxl
+gunicorn
+Topsis-Adhya-102317026
+

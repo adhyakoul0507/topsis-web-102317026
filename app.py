@@ -11,6 +11,7 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
+
 def valid_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email)
@@ -20,7 +21,6 @@ def valid_email(email):
 def home():
     return render_template("index.html")
 
-
 @app.route("/topsis", methods=["POST"])
 def run_topsis():
 
@@ -29,6 +29,7 @@ def run_topsis():
     impacts = request.form.get("impacts")
     email = request.form.get("email")
 
+    # Basic validation
     if not file or not weights or not impacts or not email:
         return "All fields are required."
 
@@ -52,8 +53,11 @@ def run_topsis():
 
     try:
         topsis(input_path, weights, impacts, output_path)
+    except SystemExit:
+        return "Error in TOPSIS input validation."
     except Exception as e:
         return f"Error processing file: {str(e)}"
+
 
     try:
         msg = EmailMessage()
@@ -82,3 +86,6 @@ def run_topsis():
 
     return "Result sent successfully to your email!"
 
+
+if __name__ == "__main__":
+    app.run(debug=True)

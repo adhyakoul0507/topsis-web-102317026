@@ -7,7 +7,7 @@
 
     <h2>TOPSIS Web Service</h2>
 
-    <form action="/topsis" method="post" enctype="multipart/form-data">
+    <form id="topsisForm">
 
         <label>File:</label><br>
         <input type="file" name="file" required><br><br>
@@ -18,13 +18,48 @@
         <label>Impacts (comma separated + or -):</label><br>
         <input type="text" name="impacts" placeholder="+,+,+,+" required><br><br>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
-
         <button type="submit">Submit</button>
 
     </form>
 
+    <p id="message"></p>
+
+    <script>
+        document.getElementById('topsisForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const msg = document.getElementById('message');
+            msg.textContent = 'Processing...';
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/topsis', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({ error: 'Something went wrong.' }));
+                    msg.textContent = data.error || 'Error occurred.';
+                    return;
+                }
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'topsis_result.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                msg.textContent = 'Done! Result downloaded.';
+
+            } catch (err) {
+                msg.textContent = 'Error: ' + err.message;
+            }
+        });
+    </script>
+
 </body>
 </html>
-
